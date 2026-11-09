@@ -47,7 +47,7 @@ Read [RESULTS.md](RESULTS.md) for the findings, recommendations, and limitations
 
 The script uses sequential base R and igraph code. It saves four CSV tables to `results/` and displays six figures in RStudio's Plots pane. Run each plot together with its title, legend, or annotations. If the whole script is run at once, use the Plots history arrows to view earlier figures.
 
-**The script does not save PNG files automatically.** The six PNGs included here were exported from this final script for GitHub display. Re-export them manually if the analysis or plotting code changes. The script closes existing graphics devices at the beginning of the figures section to clear earlier plotting settings.
+**The script also saves the six figures as high-resolution PNG files** (3000 x 3000 pixels, 300 dpi) into `results/`, overwriting the copies included here. Those are the files the README and RESULTS.md display, so re-running the script refreshes them.
 
 ## Repository contents
 
