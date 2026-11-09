@@ -1,5 +1,5 @@
 #### Clinical Trial Collaboration Network Analysis
-#### Rui Lu | UNC Chapel Hill | R, igraph
+#### Rui Lu | UNC Chapel Hill
 #### Data: ClinicalTrials.gov snapshot
 
 library(igraph)
@@ -225,7 +225,7 @@ label_distance[V(focus)$name == "Peking Union Medical College Hospital"] <- 2.4
 label_angle <- rep(-pi / 2, vcount(focus))
 shanghai <- which(V(focus)$name == "Shanghai Chest Hospital")
 label_angle[shanghai] <- 0
-label_distance[shanghai] <- 5
+label_distance[shanghai] <- 4
 
 
 draw_key_institutions_figure <- function() {
