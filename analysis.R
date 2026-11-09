@@ -142,6 +142,16 @@ write.csv(partnerships, "results/partnerships.csv", row.names = FALSE)
 graphics.off()
 layout(1)
 par(mfrow = c(1, 1), cex = 1, xpd = FALSE)
+
+# High-resolution export. After each figure is drawn on screen, save_hd()
+# copies it to a 3000 x 3000 PNG (300 dpi) in results/, using the file names
+# the README and RESULTS.md link to. On-screen plotting is unchanged.
+save_hd <- function(filename) {
+  dev.copy(png, filename = file.path("results", filename),
+           width = 3000, height = 3000, res = 300)
+  dev.off()
+}
+
 # Figure 1. Largest component: colors show different network roles.
 # Top 5 by degree = many partners; top 5 by betweenness = key bridges.
 node_colors <- rep("lightsteelblue2", vcount(giant))
@@ -175,6 +185,7 @@ text(0.5, 0.19, "Five institutions with the most partners: 3 purple + 2 gold",
      cex = 0.45)
 text(0.5, 0.03, "Five strongest bridges: 3 purple + 2 red",
      cex = 0.45)
+save_hd("network.png")
 
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.1, 4.1, 2.1), cex = 1, xpd = FALSE)
@@ -228,6 +239,7 @@ legend("bottomleft", c("Seven focal institutions", "Shared partner: 2 focal ties
        col = c("steelblue4", "lightsteelblue2", "darkorange2"),
        pch = 19, pt.cex = c(1.1, 0.8, 0.8), cex = 0.6, bty = "n",
        inset = c(0, -0.10), xpd = NA)
+save_hd("key_network.png")
 
 # Figure 3. Partner breadth and bridging importance
 layout(1)
@@ -235,6 +247,7 @@ par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 plot(centrality$degree, centrality$betweenness, pch = 19, col = "steelblue",
      xlab = "Distinct partners (degree)", ylab = "Unweighted betweenness",
      main = "Partner breadth and bridging importance", cex.main = 0.9)
+save_hd("centrality.png")
 
 # Figure 4. Structural dependence under node removal
 layout(1)
@@ -243,6 +256,7 @@ barplot(removal$percentage, names.arg = c("Baseline", "Top 5\nbridges", "Top 5\n
         col = c("lightsteelblue", "indianred3", "tan3", "darkseagreen4"),
         ylim = c(0, 85), ylab = "% of original network nodes",
         main = "Structural dependence under node removal", cex.main = 0.9)
+save_hd("removal.png")
 
 # Figure 5. Trial-site footprints
 layout(1)
@@ -255,11 +269,13 @@ matplot(geography$year, geography[, c("china_percent", "us_percent", "both_perce
 legend("topleft", c("China only", "US only", "China and US"),
        col = c("indianred3", "steelblue", "darkseagreen4"),
        pch = c(16, 17, 15), lty = 1, bty = "n")
+save_hd("geography.png")
 
 # Figure 6. One-time and recurring partnerships
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 barplot(partnerships$pairs, names.arg = partnerships$type, col = "steelblue",
         ylab = "Distinct institutional pairs", main = "One-time and recurring partnerships", cex.main = 0.9)
+save_hd("partnerships.png")
 
 
