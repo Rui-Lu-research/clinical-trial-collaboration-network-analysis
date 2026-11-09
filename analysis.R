@@ -143,19 +143,14 @@ graphics.off()
 layout(1)
 par(mfrow = c(1, 1), cex = 1, xpd = FALSE)
 
-# High-resolution export. After each figure is drawn on screen,
-# save_high_resolution_copy() saves it as a 3000 x 3000 PNG (300 dpi)
-# in results/, using the file names the README and RESULTS.md link to.
-# On-screen plotting is unchanged. The two network figures are the
-# exception: they are drawn directly into their files, for the reason
-# given at those figures.
+
 save_high_resolution_copy <- function(filename) {
   dev.copy(png, filename = file.path("results", filename),
            width = 3000, height = 3000, res = 300)
   dev.off()
 }
 
-# Figure 1. Largest component: colors show different network roles.
+#### Figure 1. Largest component: colors show different network roles.
 # Top 5 by degree = many partners; top 5 by betweenness = key bridges.
 node_colors <- rep("lightsteelblue2", vcount(giant))
 node_colors[V(giant)$name %in% top_degree] <- "goldenrod2"
@@ -165,9 +160,7 @@ node_colors[V(giant)$name %in% intersect(top_degree, top_bridges)] <- "mediumpur
 node_sizes <- rep(1.5, vcount(giant))
 node_sizes[V(giant)$name %in% union(top_degree, top_bridges)] <- 4
 
-# This figure is also drawn by a small function and then drawn directly
-# into its PNG file, for the same reason as the key institutions figure:
-# copying the screen plot shifted its legend to the left, off center.
+
 draw_largest_component_figure <- function() {
   layout(matrix(c(1, 2), ncol = 1), heights = c(9, 1))
   par(mar = c(0, 0, 1.8, 0))
@@ -203,7 +196,7 @@ layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.1, 4.1, 2.1), cex = 1, xpd = FALSE)
 
 
-# Figure 2. The seven highest-betweenness institutions and shared partners.
+#### Figure 2. The seven highest-betweenness institutions and shared partners.
 # A shared partner connects directly to at least two of the seven.
 key_orgs <- names(sort(btw, decreasing = TRUE))[1:7]
 all_partners <- character()
@@ -232,12 +225,9 @@ label_distance[V(focus)$name == "Peking Union Medical College Hospital"] <- 2.4
 label_angle <- rep(-pi / 2, vcount(focus))
 shanghai <- which(V(focus)$name == "Shanghai Chest Hospital")
 label_angle[shanghai] <- 0
-label_distance[shanghai] <- 8
+label_distance[shanghai] <- 5
 
-# This figure is drawn by a small function so that it can be drawn twice:
-# once on screen, and once directly into its PNG file. Drawing it directly
-# into the file is necessary because copying the screen plot pushed this
-# figure's legend off the left edge of the picture.
+
 draw_key_institutions_figure <- function() {
   layout(1)
   par(mfrow = c(1, 1), mar = c(6, 2, 3.5, 1), cex = 1, xpd = FALSE)
@@ -263,7 +253,7 @@ png(filename = file.path("results", "key_network.png"),
 draw_key_institutions_figure()
 dev.off()
 
-# Figure 3. Partner breadth and bridging importance
+#### Figure 3. Partner breadth and bridging importance
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 plot(centrality$degree, centrality$betweenness, pch = 19, col = "steelblue",
@@ -271,7 +261,7 @@ plot(centrality$degree, centrality$betweenness, pch = 19, col = "steelblue",
      main = "Partner breadth and bridging importance", cex.main = 0.9)
 save_high_resolution_copy("centrality.png")
 
-# Figure 4. Structural dependence under node removal
+#### Figure 4. Structural dependence under node removal
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 barplot(removal$percentage, names.arg = c("Baseline", "Top 5\nbridges", "Top 5\ndegree", "5 random\nmean"),
@@ -280,7 +270,7 @@ barplot(removal$percentage, names.arg = c("Baseline", "Top 5\nbridges", "Top 5\n
         main = "Structural dependence under node removal", cex.main = 0.9)
 save_high_resolution_copy("removal.png")
 
-# Figure 5. Trial-site footprints
+#### Figure 5. Trial-site footprints
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 matplot(geography$year, geography[, c("china_percent", "us_percent", "both_percent")],
@@ -293,7 +283,7 @@ legend("topleft", c("China only", "US only", "China and US"),
        pch = c(16, 17, 15), lty = 1, bty = "n")
 save_high_resolution_copy("geography.png")
 
-# Figure 6. One-time and recurring partnerships
+#### Figure 6. One-time and recurring partnerships
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 barplot(partnerships$pairs, names.arg = partnerships$type, col = "steelblue",
