@@ -143,10 +143,13 @@ graphics.off()
 layout(1)
 par(mfrow = c(1, 1), cex = 1, xpd = FALSE)
 
-# High-resolution export. After each figure is drawn on screen, save_hd()
-# copies it to a 3000 x 3000 PNG (300 dpi) in results/, using the file names
-# the README and RESULTS.md link to. On-screen plotting is unchanged.
-save_hd <- function(filename) {
+# High-resolution export. After each figure is drawn on screen,
+# save_high_resolution_copy() saves it as a 3000 x 3000 PNG (300 dpi)
+# in results/, using the file names the README and RESULTS.md link to.
+# On-screen plotting is unchanged. The two network figures are the
+# exception: they are drawn directly into their files, for the reason
+# given at those figures.
+save_high_resolution_copy <- function(filename) {
   dev.copy(png, filename = file.path("results", filename),
            width = 3000, height = 3000, res = 300)
   dev.off()
@@ -162,30 +165,39 @@ node_colors[V(giant)$name %in% intersect(top_degree, top_bridges)] <- "mediumpur
 node_sizes <- rep(1.5, vcount(giant))
 node_sizes[V(giant)$name %in% union(top_degree, top_bridges)] <- 4
 
-layout(matrix(c(1, 2), ncol = 1), heights = c(9, 1))
-par(mar = c(0, 0, 1.8, 0))
-set.seed(42)
-plot(giant, layout = layout_with_kk(giant, weights = NA),
-     vertex.size = node_sizes, vertex.label = NA,
-     vertex.color = node_colors, vertex.frame.color = NA,
-     edge.color = "grey90", edge.width = 0.5,
-     margin = 0, main = "")
-title("Largest component: hubs and bridges", cex.main = 0.95)
+# This figure is also drawn by a small function and then drawn directly
+# into its PNG file, for the same reason as the key institutions figure:
+# copying the screen plot shifted its legend to the left, off center.
+draw_largest_component_figure <- function() {
+  layout(matrix(c(1, 2), ncol = 1), heights = c(9, 1))
+  par(mar = c(0, 0, 1.8, 0))
+  set.seed(42)
+  plot(giant, layout = layout_with_kk(giant, weights = NA),
+       vertex.size = node_sizes, vertex.label = NA,
+       vertex.color = node_colors, vertex.frame.color = NA,
+       edge.color = "grey90", edge.width = 0.5,
+       margin = 0, main = "")
+  title("Largest component: hubs and bridges", cex.main = 0.95)
 
-par(mar = c(0, 0, 0, 0))
-plot.new()
-plot.window(xlim = c(0, 1), ylim = c(0, 1))
-legend("top", inset = 0, ncol = 2,
-       legend = c("Top 5 in BOTH rankings (3 institutions)", "Bridging top 5, but not partner top 5 (2)",
-                  "Partner top 5, but not bridging top 5 (2)", "Other institutions"),
-       col = c("mediumpurple3", "tomato3", "goldenrod2", "lightsteelblue2"),
-       pch = 19, pt.cex = 0.65, cex = 0.5, bty = "n",
-       x.intersp = 0.6, y.intersp = 0.85)
-text(0.5, 0.19, "Five institutions with the most partners: 3 purple + 2 gold",
-     cex = 0.45)
-text(0.5, 0.03, "Five strongest bridges: 3 purple + 2 red",
-     cex = 0.45)
-save_hd("network.png")
+  par(mar = c(0, 0, 0, 0))
+  plot.new()
+  plot.window(xlim = c(0, 1), ylim = c(0, 1))
+  legend("top", inset = 0, ncol = 2,
+         legend = c("Top 5 in BOTH rankings (3 institutions)", "Bridging top 5, but not partner top 5 (2)",
+                    "Partner top 5, but not bridging top 5 (2)", "Other institutions"),
+         col = c("mediumpurple3", "tomato3", "goldenrod2", "lightsteelblue2"),
+         pch = 19, pt.cex = 0.65, cex = 0.5, bty = "n",
+         x.intersp = 0.6, y.intersp = 0.85)
+  text(0.5, 0.19, "Five institutions with the most partners: 3 purple + 2 gold",
+       cex = 0.45)
+  text(0.5, 0.03, "Five strongest bridges: 3 purple + 2 red",
+       cex = 0.45)
+}
+draw_largest_component_figure()
+png(filename = file.path("results", "network.png"),
+    width = 3000, height = 3000, res = 300)
+draw_largest_component_figure()
+dev.off()
 
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.1, 4.1, 2.1), cex = 1, xpd = FALSE)
@@ -222,24 +234,34 @@ shanghai <- which(V(focus)$name == "Shanghai Chest Hospital")
 label_angle[shanghai] <- 0
 label_distance[shanghai] <- 8
 
-layout(1)
-par(mfrow = c(1, 1), mar = c(6, 1, 3.5, 1), cex = 1, xpd = FALSE)
-set.seed(42)
-plot(focus, layout = layout_with_kk(focus, weights = NA),
-     vertex.size = ifelse(V(focus)$name %in% key_orgs, 13, 6),
-     vertex.color = focus_colors, vertex.frame.color = "white",
-     vertex.label = focus_labels, vertex.label.color = "black",
-     vertex.label.cex = 0.75, vertex.label.dist = label_distance,
-     vertex.label.degree = label_angle,
-     edge.color = "grey80", edge.width = 1,
-     main = "")
-title("Key institutions and shared partners\n(selected network)", cex.main = 0.85)
-legend("bottomleft", c("Seven focal institutions", "Shared partner: 2 focal ties",
-                       "Shared partner: 3 or more focal ties"),
-       col = c("steelblue4", "lightsteelblue2", "darkorange2"),
-       pch = 19, pt.cex = c(1.1, 0.8, 0.8), cex = 0.6, bty = "n",
-       inset = c(0, -0.10), xpd = NA)
-save_hd("key_network.png")
+# This figure is drawn by a small function so that it can be drawn twice:
+# once on screen, and once directly into its PNG file. Drawing it directly
+# into the file is necessary because copying the screen plot pushed this
+# figure's legend off the left edge of the picture.
+draw_key_institutions_figure <- function() {
+  layout(1)
+  par(mfrow = c(1, 1), mar = c(6, 2, 3.5, 1), cex = 1, xpd = FALSE)
+  set.seed(42)
+  plot(focus, layout = layout_with_kk(focus, weights = NA),
+       vertex.size = ifelse(V(focus)$name %in% key_orgs, 13, 6),
+       vertex.color = focus_colors, vertex.frame.color = "white",
+       vertex.label = focus_labels, vertex.label.color = "black",
+       vertex.label.cex = 0.75, vertex.label.dist = label_distance,
+       vertex.label.degree = label_angle,
+       edge.color = "grey80", edge.width = 1,
+       main = "")
+  title("Key institutions and shared partners\n(selected network)", cex.main = 0.85)
+  legend("bottomleft", c("Seven focal institutions", "Shared partner: 2 focal ties",
+                         "Shared partner: 3 or more focal ties"),
+         col = c("steelblue4", "lightsteelblue2", "darkorange2"),
+         pch = 19, pt.cex = c(1.1, 0.8, 0.8), cex = 0.6, bty = "n",
+         inset = c(0.01, -0.10), xpd = NA)
+}
+draw_key_institutions_figure()
+png(filename = file.path("results", "key_network.png"),
+    width = 3000, height = 3000, res = 300)
+draw_key_institutions_figure()
+dev.off()
 
 # Figure 3. Partner breadth and bridging importance
 layout(1)
@@ -247,7 +269,7 @@ par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 plot(centrality$degree, centrality$betweenness, pch = 19, col = "steelblue",
      xlab = "Distinct partners (degree)", ylab = "Unweighted betweenness",
      main = "Partner breadth and bridging importance", cex.main = 0.9)
-save_hd("centrality.png")
+save_high_resolution_copy("centrality.png")
 
 # Figure 4. Structural dependence under node removal
 layout(1)
@@ -256,7 +278,7 @@ barplot(removal$percentage, names.arg = c("Baseline", "Top 5\nbridges", "Top 5\n
         col = c("lightsteelblue", "indianred3", "tan3", "darkseagreen4"),
         ylim = c(0, 85), ylab = "% of original network nodes",
         main = "Structural dependence under node removal", cex.main = 0.9)
-save_hd("removal.png")
+save_high_resolution_copy("removal.png")
 
 # Figure 5. Trial-site footprints
 layout(1)
@@ -269,13 +291,13 @@ matplot(geography$year, geography[, c("china_percent", "us_percent", "both_perce
 legend("topleft", c("China only", "US only", "China and US"),
        col = c("indianred3", "steelblue", "darkseagreen4"),
        pch = c(16, 17, 15), lty = 1, bty = "n")
-save_hd("geography.png")
+save_high_resolution_copy("geography.png")
 
 # Figure 6. One-time and recurring partnerships
 layout(1)
 par(mfrow = c(1, 1), mar = c(5.1, 4.5, 4.1, 2.1), cex = 1, xpd = FALSE)
 barplot(partnerships$pairs, names.arg = partnerships$type, col = "steelblue",
         ylab = "Distinct institutional pairs", main = "One-time and recurring partnerships", cex.main = 0.9)
-save_hd("partnerships.png")
+save_high_resolution_copy("partnerships.png")
 
 
